@@ -29,7 +29,7 @@ android.permissions = INTERNET,\
     WRITE_EXTERNAL_STORAGE
 
 android.api = 33
-android.minapi = 26
+android.minapi = 21
 android.ndk = 25b
 android.sdk = 33
 android.ndk_api = 21
