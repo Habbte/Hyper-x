@@ -21,17 +21,20 @@ jobs:
             python3-pip autoconf libtool pkg-config zlib1g-dev \
             libncurses5-dev cmake libstdc++6 ccache
 
-      - name: Accept all SDK licenses
-        run: |
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
-          yes | $ANDROID_SDK_ROOT/tools/bin/sdkmanager --licenses 2>/dev/null || true
-          mkdir -p $ANDROID_SDK_ROOT/licenses
-          echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-          echo -e "\nd975f751698a77b662f1254ddbeed3901e976f5a" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
-
       - name: Install buildozer
         run: pip install buildozer==1.5.0 cython==0.29.36 virtualenv
+
+      - name: Pre-accept SDK licenses in buildozer path
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n84831b9409646a918e30573bab4c9c91346d8abd" \
+            > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          printf "\nd975f751698a77b662f1254ddbeed3901e976f5a" \
+            > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+          printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" \
+            > ~/.buildozer/android/platform/android-sdk/licenses/google-gdk-license
+          printf "\n601085b94cd77f0b54ff86406957099ebe79c4d6" \
+            > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
 
       - name: Cache buildozer
         uses: actions/cache@v4
@@ -40,10 +43,7 @@ jobs:
           key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
 
       - name: Build APK
-        run: |
-          export ANDROIDSDK=$ANDROID_SDK_ROOT
-          export ANDROIDNDK=$ANDROID_NDK_ROOT
-          buildozer -v android debug 2>&1 | tee build.log
+        run: buildozer -v android debug 2>&1 | tee build.log
 
       - name: Upload log always
         if: always()
