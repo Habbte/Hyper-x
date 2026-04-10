@@ -1,0 +1,13 @@
+sessions/
+*.session
+*.session-journal
+habtex_config.json
+habtex.log
+added_members.log
+scraped.txt
+status.json
+__pycache__/
+*.pyc
+.buildozer/
+bin/
+.env

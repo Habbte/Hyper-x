@@ -1,0 +1,7 @@
+kivy==2.2.1
+kivymd==1.1.1
+telethon==1.34.0
+cryptg
+pyaes
+rsa
+colorama
