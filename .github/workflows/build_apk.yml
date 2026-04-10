@@ -24,20 +24,21 @@ jobs:
       - name: Install buildozer
         run: pip install buildozer==1.5.0 cython==0.29.36 virtualenv
 
-      - name: Link pre-installed Android SDK into buildozer path
+      - name: Setup Android SDK for buildozer
         run: |
           mkdir -p ~/.buildozer/android/platform/
           ln -sf /usr/local/lib/android/sdk ~/.buildozer/android/platform/android-sdk
-          ls ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          mkdir -p /usr/local/lib/android/sdk/licenses
           printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n84831b9409646a918e30573bab4c9c91346d8abd" \
             > /usr/local/lib/android/sdk/licenses/android-sdk-license
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platforms;android-33" 2>/dev/null || true
 
       - name: Cache buildozer
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-v2
+          key: buildozer-${{ runner.os }}-v3
 
       - name: Build APK
         run: buildozer -v android debug 2>&1 | tee build.log
