@@ -11,8 +11,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - uses: actions/setup-python@v5
         with:
@@ -36,18 +34,23 @@ jobs:
           key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
 
       - name: Build APK
-        run: buildozer -v android debug 2>&1 | tee build.log
+        run: |
+          buildozer -v android debug 2>&1 | tee build.log
+          echo "Exit code: ${PIPESTATUS[0]}"
+          ls -la bin/ || echo "bin/ folder missing"
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: hyper-x-debug
-          path: bin/*.apk
-          retention-days: 30
-
-      - name: Upload build log (on failure)
-        if: failure()
+      - name: Upload log always
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: build.log
+
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyper-x-debug
+          path: bin/*.apk
+          if-no-files-found: warn
+          retention-days: 30
