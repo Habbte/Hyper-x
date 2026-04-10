@@ -24,23 +24,20 @@ jobs:
       - name: Install buildozer
         run: pip install buildozer==1.5.0 cython==0.29.36 virtualenv
 
-      - name: Pre-accept SDK licenses in buildozer path
+      - name: Link pre-installed Android SDK into buildozer path
         run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          mkdir -p ~/.buildozer/android/platform/
+          ln -sf /usr/local/lib/android/sdk ~/.buildozer/android/platform/android-sdk
+          ls ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
           printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n84831b9409646a918e30573bab4c9c91346d8abd" \
-            > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          printf "\nd975f751698a77b662f1254ddbeed3901e976f5a" \
-            > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
-          printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a" \
-            > ~/.buildozer/android/platform/android-sdk/licenses/google-gdk-license
-          printf "\n601085b94cd77f0b54ff86406957099ebe79c4d6" \
-            > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+            > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
       - name: Cache buildozer
         uses: actions/cache@v4
         with:
           path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          key: buildozer-${{ runner.os }}-v2
 
       - name: Build APK
         run: buildozer -v android debug 2>&1 | tee build.log
